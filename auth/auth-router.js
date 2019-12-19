@@ -6,6 +6,11 @@ const jwt = require('jsonwebtoken');
 // IMPORT MODELS
 const Users = require('../model/user-model');
 
+
+// IMPORT MIDDLEWARE
+const restricted = require('./restricted-middleware');
+
+
 // END POINTS FOR /API/
 router.post('/register', (req, res) => {
     let user = req.body;
@@ -31,8 +36,11 @@ router.post('/login', (req, res) => {
             if (user && bcrypt.compareSync(password, user.password)){
                 // CREATES TOKEN
                 const token = makeToken(user);
+                const userId = user.id;
 
-                res.status(200).json({
+
+                res.status(200).json({   
+                    userId, 
                     token,
                     message: "Welcome!"
                 })
@@ -45,7 +53,18 @@ router.post('/login', (req, res) => {
           });
 })
 
-
+router.get('/users', restricted, (req, res) => {
+    Users.find()
+        .then(users => {
+            res.json(users);
+        })
+        .catch(err => {
+            res.send({
+                err, 
+                message: "Ya'll done messed up A A RON!"
+            })
+        })
+})
 
 
 
@@ -58,7 +77,7 @@ function makeToken(user){
     const secret = process.env.JWT_SECRET || "This is a secret";
 
     const options = {
-        expiresIn: "1h",
+        expiresIn: "8h",
     }
     return jwt.sign(payload, secret, options);
 }

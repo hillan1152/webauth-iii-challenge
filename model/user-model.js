@@ -25,7 +25,7 @@ function findById(id){
 }
 
 function find() {
-    return db("users").select("id", "username", "department");
+    return db("users").select("id", "username");
   }
 
 // FIND USERS
